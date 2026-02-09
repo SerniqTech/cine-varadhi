@@ -1,7 +1,9 @@
 import { Film } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/context/use-auth";
 
 export default function Header() {
+  const { user } = useAuth();
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,8 +21,15 @@ export default function Header() {
 
           <nav className="flex items-center space-x-1">
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback>
+                {(user?.user_metadata?.full_name || "")
+                  ?.split(" ")
+                  .slice(0, 2)
+                  .map((word: string) => word[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </nav>
         </div>

@@ -1,13 +1,20 @@
 import { useRoutes } from "react-router";
-import Hero from "./components/Hero";
+import Hero from "./components/hero";
 import DashboardLayout from "./layout/dashboard-layout";
-import { CreatorOnboardingForm } from "./components/creator-onboarding-form";
+import CreatorOnboardingForm from "./pages/creator-onboarding-form";
+import { Login } from "./pages/login";
+import ProtectedRoute from "./layout/protected-route";
+import PublicRoute from "./layout/public-route";
 
 export const Router = () => {
   return useRoutes([
     {
       path: "/",
-      element: <DashboardLayout />,
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           index: true,
@@ -17,7 +24,19 @@ export const Router = () => {
     },
     {
       path: "new-account-registration",
-      element: <CreatorOnboardingForm />,
+      element: (
+        <ProtectedRoute>
+          <CreatorOnboardingForm />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/login",
+      element: (
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      ),
     },
   ]);
 };

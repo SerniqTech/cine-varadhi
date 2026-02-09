@@ -81,7 +81,7 @@ const languages = [
   "Other",
 ];
 
-export function CreatorOnboardingForm() {
+export default function CreatorOnboardingForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -181,7 +181,7 @@ export function CreatorOnboardingForm() {
         throw error;
       }
 
-      console.log(creatorData)
+      console.log(creatorData);
 
       alert(
         `Registration successful! Welcome to Cine Varadhi, ${data.fullName}!`,
