@@ -46,26 +46,58 @@ on public.profiles
 for select
 using (auth.uid() = id);
 
--- Drop old update policy if exists
+-- Drop any old update policies
 drop policy if exists "Users can update own profile before completion"
 on public.profiles;
 
--- Secure update policy
--- Blocks:
--- 1. Email changes
--- 2. onboarding_completed changes
-create policy "Users can update own profile (restricted)"
+drop policy if exists "Users can update own profile (restricted)"
+on public.profiles;
+
+-- Users can update only their own row
+create policy "Users can update own profile"
 on public.profiles
 for update
 using (auth.uid() = id)
-with check (
-  auth.uid() = id
-  AND email = old.email
-  AND onboarding_completed = old.onboarding_completed
-);
+with check (auth.uid() = id);
 
 --------------------------------------------------------
--- 4. AUTO CREATE PROFILE WHEN AUTH USER IS CREATED
+-- 4. PREVENT PROTECTED FIELD UPDATES (TRIGGER)
+--------------------------------------------------------
+
+create or replace function public.prevent_protected_fields_update()
+returns trigger
+language plpgsql
+as $$
+begin
+  -- Allow updates coming from SECURITY DEFINER functions (like RPC)
+  if current_user <> 'authenticated' then
+    return new;
+  end if;
+
+  -- Block email updates
+  if new.email is distinct from old.email then
+    raise exception 'Email cannot be updated';
+  end if;
+
+  -- Block onboarding_completed updates
+  if new.onboarding_completed is distinct from old.onboarding_completed then
+    raise exception 'onboarding_completed cannot be updated directly';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists prevent_protected_fields_update
+on public.profiles;
+
+create trigger prevent_protected_fields_update
+before update on public.profiles
+for each row
+execute procedure public.prevent_protected_fields_update();
+
+--------------------------------------------------------
+-- 5. AUTO CREATE PROFILE WHEN AUTH USER IS CREATED
 --------------------------------------------------------
 
 create or replace function public.handle_new_user()
@@ -90,7 +122,7 @@ after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
 --------------------------------------------------------
--- 5. AUTO UPDATE updated_at COLUMN
+-- 6. AUTO UPDATE updated_at COLUMN
 --------------------------------------------------------
 
 create or replace function public.handle_updated_at()
@@ -110,7 +142,7 @@ before update on public.profiles
 for each row execute procedure public.handle_updated_at();
 
 --------------------------------------------------------
--- 6. SECURE RPC TO COMPLETE ONBOARDING
+-- 7. SECURE RPC TO COMPLETE ONBOARDING
 --------------------------------------------------------
 
 create or replace function public.complete_onboarding(
@@ -146,7 +178,7 @@ begin
     travel_willingness = p_travel_willingness,
     onboarding_completed = true
   where id = auth.uid()
-  AND onboarding_completed = false; -- prevents second execution
+  and onboarding_completed = false; -- prevents second execution
 end;
 $$;
 
