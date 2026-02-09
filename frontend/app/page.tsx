@@ -1,5 +1,6 @@
 import { CreatorOnboardingForm } from "@/components/creator-onboarding-form";
+import Hero from "@/components/Hero";
 
 export default function Home() {
-  return <CreatorOnboardingForm />;
+  return <Hero />;
 }
