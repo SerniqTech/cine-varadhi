@@ -1,4 +1,4 @@
-import { Film, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/auth-store";
+import logo from '/logo.jpeg'
 
 export default function Header() {
   const { user, signOut } = useAuthStore();
@@ -30,11 +31,11 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
-              <div className="bg-linear-to-br from-amber-500 to-orange-600 p-2 rounded-lg">
-                <Film className="w-6 h-6 text-white" />
+              <div className="w-6 h-6">
+                <img src={logo} alt="logo" width="100%" height="100%"/>
               </div>
-              <span className="text-xl font-bold text-slate-900">
-                Cine Varadhi
+              <span className="text-xl font-bold">
+                <span className="text-indigo-900">CINE</span> <span className="text-amber-400">VARADHI</span>
               </span>
             </div>
           </div>

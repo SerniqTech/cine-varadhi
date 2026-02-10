@@ -1,11 +1,18 @@
 import { Sparkles } from "lucide-react";
+import heroBanner from "@/assets/images/hero-banner.jpeg";
 
 export default function Hero() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] relative bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
         <div className="text-center space-y-8">
           <div className="space-y-4">
+            <div className="w-full text-5xl sm:text-6xl lg:text-7xl font-black leading-tight flex justify-center items-center">
+              <div className="max-w-68 max-h-68 ">
+                <img src={heroBanner} alt="logo" width="100%" height="100%" />
+              </div>
+            </div>
+
             <div className="flex items-center justify-center gap-2 text-amber-400 mb-4">
               <Sparkles className="w-5 h-5" />
               <span className="text-sm font-semibold uppercase tracking-widest">
