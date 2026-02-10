@@ -6,14 +6,15 @@ export default function PublicRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuthStore();
+  const { user, isAuthLoading, isProfileLoading } = useAuthStore();
 
-  if (loading)
+  if (isAuthLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Checking session...</p>
       </div>
     );
+  }
 
   if (user) {
     return <Navigate to="/" replace />;

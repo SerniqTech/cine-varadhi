@@ -3,16 +3,14 @@ import { useAuthStore } from "@/store/auth-store";
 
 export default function ProtectedRoute({
   children,
-  allowIncompleteOnboarding
+  allowIncompleteOnboarding,
 }: {
   children: React.ReactNode;
   allowIncompleteOnboarding?: boolean;
 }) {
-  const { user, profile, loading } = useAuthStore();
+  const { user, profile, isAuthLoading, isProfileLoading } = useAuthStore();
 
-  console.log(user,profile)
-
-  if (loading) {
+  if (isAuthLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Checking session...</p>
