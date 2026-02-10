@@ -17,6 +17,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -82,6 +83,7 @@ const languages = [
 ];
 
 export default function CreatorOnboardingForm() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -158,24 +160,22 @@ export default function CreatorOnboardingForm() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const { data: creatorData, error } = await supabase
-        .from("creators")
-        .insert({
-          full_name: data.fullName,
-          mobile_number: data.mobileNumber,
-          primary_profession: data.primaryProfession,
-          secondary_skills: data.secondarySkills || [],
-          experience_level: data.experienceLevel,
-          years_of_experience: data.yearsOfExperience,
-          industry_types: data.industryTypes,
-          languages: data.languages,
-          portfolio_links: data.portfolioLinks,
-          showreel_url: data.showreelUrl || null,
-          current_city: data.currentCity,
-          travel_willingness: data.travelWillingness,
-        })
-        .select()
-        .single();
+      const { data: creatorData, error } = await supabase.rpc(
+        "complete_onboarding",
+        {
+          p_mobile_number: data.mobileNumber,
+          p_primary_profession: data.primaryProfession,
+          p_secondary_skills: data.secondarySkills,
+          p_experience_level: data.experienceLevel,
+          p_years_of_experience: data.yearsOfExperience,
+          p_industry_types: data.industryTypes,
+          p_languages: data.languages,
+          p_portfolio_links: data.portfolioLinks,
+          p_showreel_url: data.showreelUrl,
+          p_current_city: data.currentCity,
+          p_travel_willingness: data.travelWillingness,
+        },
+      );
 
       if (error) {
         throw error;
@@ -186,6 +186,8 @@ export default function CreatorOnboardingForm() {
       alert(
         `Registration successful! Welcome to Cine Varadhi, ${data.fullName}!`,
       );
+
+      navigate("/");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";

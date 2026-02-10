@@ -1,12 +1,12 @@
 import { Navigate } from "react-router";
-import { useAuth } from "@/context/use-auth";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function PublicRoute({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
 
   if (loading)
     return (

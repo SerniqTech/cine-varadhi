@@ -1,12 +1,16 @@
 import { Navigate } from "react-router";
-import { useAuth } from "@/context/use-auth";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function ProtectedRoute({
   children,
+  allowIncompleteOnboarding
 }: {
   children: React.ReactNode;
+  allowIncompleteOnboarding?: boolean;
 }) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuthStore();
+
+  console.log(user,profile)
 
   if (loading) {
     return (
@@ -18,6 +22,10 @@ export default function ProtectedRoute({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (!allowIncompleteOnboarding && !profile?.onboarding_completed) {
+    return <Navigate to="/new-account-registration" replace />;
   }
 
   return <>{children}</>;

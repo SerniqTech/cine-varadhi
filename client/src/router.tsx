@@ -25,7 +25,7 @@ export const Router = () => {
     {
       path: "new-account-registration",
       element: (
-        <ProtectedRoute>
+        <ProtectedRoute allowIncompleteOnboarding>
           <CreatorOnboardingForm />
         </ProtectedRoute>
       ),

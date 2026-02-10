@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useAuth } from "@/context/use-auth";
+import { useAuthStore } from "@/store/auth-store";
 import { LogIn } from "lucide-react";
 
 export function Login() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
