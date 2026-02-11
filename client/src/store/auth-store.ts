@@ -27,6 +27,9 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Something went wrong";
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
@@ -78,9 +81,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
 
       set({ unsubscribe: subscription.unsubscribe });
-    } catch (err: any) {
+    } catch (err:unknown) {
       set({
-        error: err.message ?? "Something went wrong",
+        error: getErrorMessage(err),
         isAuthLoading: false,
       });
     }
@@ -101,8 +104,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) throw error;
 
       set({ profile: data });
-    } catch (err: any) {
-      console.error("Profile fetch error:", err.message);
+    } catch (err) {
+      console.error("Profile fetch error:", getErrorMessage(err));
       set({ profile: null });
     } finally {
       set({ isProfileLoading: false });
@@ -124,7 +127,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `https://cine-varadhi-d698d.web.app/`,
+        redirectTo: `${window.location.origin}/`,
       },
     });
 

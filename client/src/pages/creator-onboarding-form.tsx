@@ -18,6 +18,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import { useAuthStore } from "@/store/auth-store";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -84,6 +86,7 @@ const languages = [
 
 export default function CreatorOnboardingForm() {
   const navigate = useNavigate();
+  const refreshProfile = useAuthStore(s=>s.refreshProfile)
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -99,7 +102,7 @@ export default function CreatorOnboardingForm() {
     watch,
     trigger,
   } = useForm<FormData>({
-    mode: "onChange",
+    mode:"onSubmit",
     resolver: zodResolver(formSchema),
     defaultValues: {
       primaryProfession: [],
@@ -157,12 +160,14 @@ export default function CreatorOnboardingForm() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    try {
-      const { data: creatorData, error } = await supabase.rpc(
-        "complete_onboarding",
-        {
+const onSubmit = async (data: FormData) => {
+   console.log("FORM SUBMITTED");
+  setIsSubmitting(true);
+
+  try {
+    await toast.promise(
+      (async () => {
+        const { error } = await supabase.rpc("complete_onboarding", {
           p_mobile_number: data.mobileNumber,
           p_primary_profession: data.primaryProfession,
           p_secondary_skills: data.secondarySkills,
@@ -174,28 +179,27 @@ export default function CreatorOnboardingForm() {
           p_showreel_url: data.showreelUrl,
           p_current_city: data.currentCity,
           p_travel_willingness: data.travelWillingness,
-        },
-      );
+        });
 
-      if (error) {
-        throw error;
+        if (error) throw error;
+
+        await refreshProfile(); // important
+      })(),
+      {
+        loading: "Creating your creator account...",
+        success: `Registration successful! Welcome to Cine Varadhi, ${data.fullName}!`,
+        error: (err) =>
+          `Registration failed: ${
+            err?.message || "Something went wrong"
+          }`,
       }
+    );
 
-      console.log(creatorData);
-
-      alert(
-        `Registration successful! Welcome to Cine Varadhi, ${data.fullName}!`,
-      );
-
-      navigate("/");
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      alert(`Registration failed: ${errorMessage}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    navigate("/");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 py-12 px-4">
